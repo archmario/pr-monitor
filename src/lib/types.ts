@@ -53,3 +53,12 @@ export interface PersonDetail {
   display_name: string | null;
   pull_requests: PullRequestItem[];
 }
+
+export interface SyncRun {
+  id: number;
+  status: 'running' | 'success' | 'failed';
+  started_at: string; // UTC, no timezone suffix (e.g. "2026-10-20T11:40:20.921728")
+  finished_at: string | null;
+  prs_synced: number;
+  error_message: string | null;
+}

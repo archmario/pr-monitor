@@ -1,10 +1,11 @@
-import { getConflicts, getPeople, getSummary } from '@/lib/api';
+import { getConflicts, getLastSync, getPeople, getSummary } from '@/lib/api';
 import type { Period } from '@/lib/types';
 import { daysOfThisWeek, isoWeekNumber, isSelectableDay, weekRangeLabel } from '@/lib/week';
 import { PeriodToggle } from '@/components/PeriodToggle';
 import { HeadlineCard } from '@/components/HeadlineCard';
 import { NeedsAttentionSection } from '@/components/NeedsAttentionSection';
 import { PersonTable } from '@/components/PersonTable';
+import { SyncStatus } from '@/components/SyncStatus';
 import { WeekDayStrip } from '@/components/WeekDayStrip';
 
 const PERIODS: Period[] = ['all', 'today', 'week', 'd30', 'd90'];
@@ -26,10 +27,11 @@ export default async function DashboardPage({
   const day = isWeek && isSelectableDay(dayParam) ? dayParam : null;
   const weekDays = isWeek ? daysOfThisWeek() : [];
 
-  const [summary, people, conflicts, dayCounts] = await Promise.all([
+  const [summary, people, conflicts, lastSync, dayCounts] = await Promise.all([
     getSummary(period, day),
     getPeople(period, day),
     getConflicts(),
+    getLastSync(),
     // One small summary call per day so far this week, for the counts in the strip.
     Promise.all(
       weekDays
@@ -53,7 +55,10 @@ export default async function DashboardPage({
               : ' - nothing is currently stuck on a conflict.'}
           </p>
         </div>
-        <PeriodToggle current={period} basePath="/" />
+        <div className="flex flex-col items-start gap-2 sm:items-end">
+          <PeriodToggle current={period} basePath="/" />
+          <SyncStatus initialRun={lastSync} />
+        </div>
       </header>
 
       {isWeek && (

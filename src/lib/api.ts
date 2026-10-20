@@ -1,6 +1,13 @@
-import type { ConflictEntry, PeriodTotals, PersonDetail, PersonSummary, PullRequestItem } from './types';
+import type {
+  ConflictEntry,
+  PeriodTotals,
+  PersonDetail,
+  PersonSummary,
+  PullRequestItem,
+  SyncRun,
+} from './types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000/api/v1';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000/api/v1';
 
 async function getJson<T>(path: string): Promise<T> {
   // Always fresh: the whole point of this app is that it never shows stale
@@ -48,4 +55,9 @@ export function getPrs(filters: PrFilters): Promise<PullRequestItem[]> {
     if (value !== undefined) params.set(key, String(value));
   });
   return getJson(`/prs?${params.toString()}`);
+}
+
+// `null` until the very first sync has run.
+export function getLastSync(): Promise<SyncRun | null> {
+  return getJson(`/sync/last`);
 }
