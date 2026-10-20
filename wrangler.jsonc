@@ -16,6 +16,11 @@
 			"binding": "WORKER_SELF_REFERENCE",
 			"service": "pr-monitor"
 		}
+	],
+	// Serves the Worker at its own domain. On deploy, Cloudflare creates the DNS
+	// record and certificate for it (archmario.com is in the same account).
+	"routes": [
+		{ "pattern": "pr-monitor.archmario.com", "custom_domain": true }
 	]
 	// No R2 cache or image binding: every data page is rendered fresh per
 	// request and the app doesn't use next/image. See opennext.js.org/cloudflare.
