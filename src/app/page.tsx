@@ -1,9 +1,11 @@
 import { getConflicts, getPeople, getSummary } from '@/lib/api';
 import type { Period } from '@/lib/types';
+import { daysOfThisWeek, isoWeekNumber, isSelectableDay, weekRangeLabel } from '@/lib/week';
 import { PeriodToggle } from '@/components/PeriodToggle';
 import { HeadlineCard } from '@/components/HeadlineCard';
 import { NeedsAttentionSection } from '@/components/NeedsAttentionSection';
 import { PersonTable } from '@/components/PersonTable';
+import { WeekDayStrip } from '@/components/WeekDayStrip';
 
 const PERIODS: Period[] = ['all', 'today', 'week', 'd30', 'd90'];
 
@@ -14,16 +16,30 @@ function isPeriod(value: string | undefined): value is Period {
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ period?: string }>;
+  searchParams: Promise<{ period?: string; day?: string }>;
 }) {
-  const { period: periodParam } = await searchParams;
+  const { period: periodParam, day: dayParam } = await searchParams;
   const period: Period = isPeriod(periodParam) ? periodParam : 'all';
 
-  const [summary, people, conflicts] = await Promise.all([
-    getSummary(period),
-    getPeople(period),
+  // A single day can only be picked from inside "This week".
+  const isWeek = period === 'week';
+  const day = isWeek && isSelectableDay(dayParam) ? dayParam : null;
+  const weekDays = isWeek ? daysOfThisWeek() : [];
+
+  const [summary, people, conflicts, dayCounts] = await Promise.all([
+    getSummary(period, day),
+    getPeople(period, day),
     getConflicts(),
+    // One small summary call per day so far this week, for the counts in the strip.
+    Promise.all(
+      weekDays
+        .filter((d) => !d.isFuture)
+        .map(async (d) => [d.iso, (await getSummary('week', d.iso)).total] as const),
+    ),
   ]);
+
+  // Carried into every card link so the drill-down shows the same slice.
+  const query = day ? `period=${period}&day=${day}` : `period=${period}`;
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-10">
@@ -40,30 +56,40 @@ export default async function DashboardPage({
         <PeriodToggle current={period} basePath="/" />
       </header>
 
+      {isWeek && (
+        <WeekDayStrip
+          days={weekDays}
+          counts={Object.fromEntries(dayCounts)}
+          selectedDay={day}
+          weekNumber={isoWeekNumber()}
+          rangeLabel={weekRangeLabel()}
+        />
+      )}
+
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <HeadlineCard label="Total PRs" value={summary.total} href={`/prs?period=${period}`} />
+        <HeadlineCard label="Total PRs" value={summary.total} href={`/prs?${query}`} />
         <HeadlineCard
           label="Merged"
           value={summary.merged}
-          href={`/prs?period=${period}&merged=true`}
+          href={`/prs?${query}&merged=true`}
           accent="merged"
         />
         <HeadlineCard
           label="Open"
           value={summary.open}
-          href={`/prs?period=${period}&state=open`}
+          href={`/prs?${query}&state=open`}
           accent="open"
         />
         <HeadlineCard
           label="Closed, not merged"
           value={summary.closed_unmerged}
-          href={`/prs?period=${period}&state=closed&merged=false`}
+          href={`/prs?${query}&state=closed&merged=false`}
           accent="closed-unmerged"
         />
         <HeadlineCard
           label="Needs a rebase"
           value={summary.open_conflict}
-          href={`/prs?period=${period}&conflict=true`}
+          href={`/prs?${query}&conflict=true`}
           accent="conflict"
         />
         <HeadlineCard label="People" value={summary.people} href="/" />

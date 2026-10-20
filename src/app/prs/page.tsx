@@ -12,6 +12,7 @@ export default async function PrsPage({
     conflict?: string;
     person?: string;
     repo?: string;
+    day?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -23,6 +24,7 @@ export default async function PrsPage({
     conflict: params.conflict === undefined ? undefined : params.conflict === 'true',
     person: params.person,
     repo: params.repo,
+    day: params.day,
   });
 
   return (

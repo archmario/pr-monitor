@@ -12,12 +12,16 @@ async function getJson<T>(path: string): Promise<T> {
   return response.json();
 }
 
-export function getSummary(period: string): Promise<PeriodTotals> {
-  return getJson(`/summary?period=${period}`);
+function periodQuery(period: string, day?: string | null): string {
+  return day ? `period=${period}&day=${day}` : `period=${period}`;
 }
 
-export function getPeople(period: string): Promise<PersonSummary[]> {
-  return getJson(`/people?period=${period}`);
+export function getSummary(period: string, day?: string | null): Promise<PeriodTotals> {
+  return getJson(`/summary?${periodQuery(period, day)}`);
+}
+
+export function getPeople(period: string, day?: string | null): Promise<PersonSummary[]> {
+  return getJson(`/people?${periodQuery(period, day)}`);
 }
 
 export function getPerson(githubLogin: string): Promise<PersonDetail> {
@@ -35,6 +39,7 @@ export interface PrFilters {
   conflict?: boolean;
   person?: string;
   repo?: string;
+  day?: string;
 }
 
 export function getPrs(filters: PrFilters): Promise<PullRequestItem[]> {
