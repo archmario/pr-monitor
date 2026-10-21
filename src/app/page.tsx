@@ -1,8 +1,9 @@
-import { getConflicts, getLastSync, getPeople, getSummary } from '@/lib/api';
+import { getConflicts, getLastSync, getMergedThisWeek, getPeople, getSummary } from '@/lib/api';
 import type { Period } from '@/lib/types';
 import { daysOfThisWeek, isoWeekNumber, isSelectableDay, weekRangeLabel } from '@/lib/week';
 import { PeriodToggle } from '@/components/PeriodToggle';
 import { HeadlineCard } from '@/components/HeadlineCard';
+import { MergedThisWeek } from '@/components/MergedThisWeek';
 import { NeedsAttentionSection } from '@/components/NeedsAttentionSection';
 import { PersonTable } from '@/components/PersonTable';
 import { SyncStatus } from '@/components/SyncStatus';
@@ -27,11 +28,12 @@ export default async function DashboardPage({
   const day = isWeek && isSelectableDay(dayParam) ? dayParam : null;
   const weekDays = isWeek ? daysOfThisWeek() : [];
 
-  const [summary, people, conflicts, lastSync, dayCounts] = await Promise.all([
+  const [summary, people, conflicts, lastSync, mergedThisWeek, dayCounts] = await Promise.all([
     getSummary(period, day),
     getPeople(period, day),
     getConflicts(),
     getLastSync(),
+    getMergedThisWeek(),
     // One small summary call per day so far this week, for the counts in the strip.
     Promise.all(
       weekDays
@@ -104,6 +106,8 @@ export default async function DashboardPage({
         <h2 className="text-lg font-semibold text-fg">Frontend Team</h2>
         <PersonTable people={people} />
       </section>
+
+      <MergedThisWeek rows={mergedThisWeek} rangeLabel={weekRangeLabel()} />
 
       <NeedsAttentionSection conflicts={conflicts} />
     </main>

@@ -62,3 +62,9 @@ export interface SyncRun {
   prs_synced: number;
   error_message: string | null;
 }
+
+export interface MergedCount {
+  github_login: string;
+  display_name: string | null;
+  merged: number;
+}

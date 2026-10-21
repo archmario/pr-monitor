@@ -1,5 +1,6 @@
 import type {
   ConflictEntry,
+  MergedCount,
   PeriodTotals,
   PersonDetail,
   PersonSummary,
@@ -37,6 +38,11 @@ export function getPerson(githubLogin: string): Promise<PersonDetail> {
 
 export function getConflicts(): Promise<ConflictEntry[]> {
   return getJson(`/conflicts`);
+}
+
+// Team members ranked by PRs merged this week (by merge date, from Monday).
+export function getMergedThisWeek(): Promise<MergedCount[]> {
+  return getJson(`/merged?period=week`);
 }
 
 export interface PrFilters {
