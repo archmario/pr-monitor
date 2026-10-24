@@ -16,8 +16,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'PR Monitor',
-  description: 'Who on the team has PRs open, merged, closed, or stuck on a conflict.',
+  title: 'KodeHauz PR Monitor',
+  description: 'Who on each KodeHauz team has PRs open, merged, closed, or stuck on a conflict.',
 };
 
 export default function RootLayout({

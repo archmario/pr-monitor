@@ -9,12 +9,14 @@ export function WeekDayStrip({
   selectedDay,
   weekNumber,
   rangeLabel,
+  basePath,
 }: {
   days: WeekDay[];
   counts: Record<string, number>;
   selectedDay: string | null;
   weekNumber: number;
   rangeLabel: string;
+  basePath: string;
 }) {
   return (
     <section className="flex flex-col gap-3">
@@ -48,7 +50,7 @@ export function WeekDayStrip({
           return (
             <Link
               key={day.iso}
-              href={selected ? '/?period=week' : `/?period=week&day=${day.iso}`}
+              href={selected ? `${basePath}?period=week` : `${basePath}?period=week&day=${day.iso}`}
               className={`${base} ${
                 selected
                   ? 'border-accent bg-accent text-white'

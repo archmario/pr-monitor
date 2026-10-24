@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { ConflictEntry } from '@/lib/types';
+import { LibraryTag } from '@/components/LibraryTag';
 
 /**
  * Collapse/expand pattern ported from the multi-agent-code-reviewer's
@@ -33,6 +34,7 @@ export function ConflictCard({ conflict }: { conflict: ConflictEntry }) {
             />
           </svg>
           <span className="truncate text-sm font-medium text-fg">{conflict.title}</span>
+          {conflict.is_library && <LibraryTag />}
         </div>
         <span className="flex-shrink-0 rounded-full bg-conflict/10 px-2.5 py-1 text-xs font-medium text-conflict">
           {conflict.author ?? 'unknown'}

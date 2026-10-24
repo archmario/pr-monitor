@@ -6,6 +6,7 @@ import type {
   PersonSummary,
   PullRequestItem,
   SyncRun,
+  Team,
 } from './types';
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000/api/v1';
@@ -20,32 +21,38 @@ async function getJson<T>(path: string): Promise<T> {
   return response.json();
 }
 
-function periodQuery(period: string, day?: string | null): string {
-  return day ? `period=${period}&day=${day}` : `period=${period}`;
+// `team` is a team slug ("frontend", "backend", "mobile") or "all".
+function periodQuery(team: string, period: string, day?: string | null): string {
+  return day ? `team=${team}&period=${period}&day=${day}` : `team=${team}&period=${period}`;
 }
 
-export function getSummary(period: string, day?: string | null): Promise<PeriodTotals> {
-  return getJson(`/summary?${periodQuery(period, day)}`);
+export function getTeams(): Promise<Team[]> {
+  return getJson(`/teams`);
 }
 
-export function getPeople(period: string, day?: string | null): Promise<PersonSummary[]> {
-  return getJson(`/people?${periodQuery(period, day)}`);
+export function getSummary(team: string, period: string, day?: string | null): Promise<PeriodTotals> {
+  return getJson(`/summary?${periodQuery(team, period, day)}`);
+}
+
+export function getPeople(team: string, period: string, day?: string | null): Promise<PersonSummary[]> {
+  return getJson(`/people?${periodQuery(team, period, day)}`);
 }
 
 export function getPerson(githubLogin: string): Promise<PersonDetail> {
   return getJson(`/people/${encodeURIComponent(githubLogin)}`);
 }
 
-export function getConflicts(): Promise<ConflictEntry[]> {
-  return getJson(`/conflicts`);
+export function getConflicts(team: string): Promise<ConflictEntry[]> {
+  return getJson(`/conflicts?team=${team}`);
 }
 
 // Team members ranked by PRs merged this week (by merge date, from Monday).
-export function getMergedThisWeek(): Promise<MergedCount[]> {
-  return getJson(`/merged?period=week`);
+export function getMergedThisWeek(team: string): Promise<MergedCount[]> {
+  return getJson(`/merged?team=${team}&period=week`);
 }
 
 export interface PrFilters {
+  team?: string;
   period?: string;
   state?: 'open' | 'closed';
   merged?: boolean;

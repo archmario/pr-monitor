@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getPrs } from '@/lib/api';
 import { BackLink } from '@/components/BackLink';
+import { LibraryTag } from '@/components/LibraryTag';
 import { StatusBadge, statusVariantFor } from '@/components/StatusBadge';
 
 const PERIOD_LABELS: Record<string, string> = {
@@ -37,6 +38,7 @@ export default async function PersonPage({
 }: {
   params: Promise<{ person: string }>;
   searchParams: Promise<{
+    team?: string;
     period?: string;
     day?: string;
     state?: string;
@@ -48,7 +50,9 @@ export default async function PersonPage({
   const filters = await searchParams;
 
   const period = filters.period && PERIOD_LABELS[filters.period] ? filters.period : 'all';
+  const team = filters.team ?? 'frontend';
   const prs = await getPrs({
+    team,
     person: githubLogin,
     period,
     day: filters.day,
@@ -68,7 +72,8 @@ export default async function PersonPage({
           : filters.state === 'closed' && filters.merged === 'false'
             ? 'Closed, not merged'
             : null;
-  const scope = [filters.day ? dayLabel(filters.day) : PERIOD_LABELS[period], statusLabel]
+  const teamLabel = team === 'all' ? 'All teams' : `${team.charAt(0).toUpperCase()}${team.slice(1)}`;
+  const scope = [teamLabel, filters.day ? dayLabel(filters.day) : PERIOD_LABELS[period], statusLabel]
     .filter(Boolean)
     .join(' · ');
   const isFiltered = period !== 'all' || Boolean(filters.day) || statusLabel !== null;
@@ -86,14 +91,14 @@ export default async function PersonPage({
               <>
                 {' '}
                 &middot;{' '}
-                <Link href={`/people/${githubLogin}`} className="text-accent hover:text-accent-hover">
+                <Link href={`/people/${githubLogin}?team=${team}`} className="text-accent hover:text-accent-hover">
                   show all their PRs
                 </Link>
               </>
             )}
           </p>
         </div>
-        <BackLink fallbackHref={`/?${dashboardQuery}`} label="Back to dashboard" />
+        <BackLink fallbackHref={`/${team}?${dashboardQuery}`} label="Back to dashboard" />
       </div>
 
       <div className="flex flex-col gap-2">
@@ -109,6 +114,7 @@ export default async function PersonPage({
               <span className="truncate text-sm font-medium text-fg">{pr.title}</span>
               <span className="flex flex-wrap items-center gap-1.5 text-xs text-fg-subtle">
                 {pr.repo} #{pr.number} &middot; opened {openedOn(pr.gh_created_at)}
+                {pr.is_library && <LibraryTag />}
               </span>
             </div>
             <StatusBadge variant={statusVariantFor(pr)} />

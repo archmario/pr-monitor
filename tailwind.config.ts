@@ -31,6 +31,11 @@ const config: Config = {
         open: 'rgb(var(--low) / <alpha-value>)',
         'closed-unmerged': 'rgb(var(--suggestion) / <alpha-value>)',
         merged: 'rgb(var(--success) / <alpha-value>)',
+
+        // KodeHauz brand colours, taken from the logo. Lime is for accents
+        // (dots, rules), not text: it's too light to read on white.
+        'brand-blue': '#3866C6',
+        'brand-lime': '#D3DC5C',
       },
       animation: {
         'fade-in': 'fade-in 0.3s ease-out',

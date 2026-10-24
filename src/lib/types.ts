@@ -18,6 +18,7 @@ export interface PersonSummary {
   open: number;
   closed_unmerged: number;
   open_conflict: number;
+  library: number; // how many of `total` are in shared-library repos
 }
 
 export interface ConflictEntry {
@@ -30,6 +31,7 @@ export interface ConflictEntry {
   base_branch: string | null;
   head_branch: string | null;
   gh_updated_at: string;
+  is_library: boolean;
 }
 
 export interface PullRequestItem {
@@ -46,6 +48,7 @@ export interface PullRequestItem {
   head_branch: string | null;
   gh_created_at: string;
   gh_updated_at: string;
+  is_library?: boolean; // only on /prs results
 }
 
 export interface PersonDetail {
@@ -67,4 +70,13 @@ export interface MergedCount {
   github_login: string;
   display_name: string | null;
   merged: number;
+}
+
+export interface Team {
+  slug: string; // "frontend" | "backend" | "mobile"
+  name: string;
+  set_up: boolean; // false until the team's members are filled in
+  members: string[];
+  repos: string[];
+  libraries: string[];
 }

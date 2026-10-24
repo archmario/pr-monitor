@@ -1,9 +1,19 @@
 import Link from 'next/link';
 import type { MergedCount } from '@/lib/types';
 
-// Ranked bars: frontend team members by PRs merged this week. Always this
+// Ranked bars: a team's members by PRs merged this week. Always this
 // week, whatever period the toggle above is set to.
-export function MergedThisWeek({ rows, rangeLabel }: { rows: MergedCount[]; rangeLabel: string }) {
+export function MergedThisWeek({
+  rows,
+  rangeLabel,
+  teamName,
+  team,
+}: {
+  rows: MergedCount[];
+  rangeLabel: string;
+  teamName: string;
+  team: string;
+}) {
   const max = Math.max(1, ...rows.map((r) => r.merged));
 
   return (
@@ -11,7 +21,7 @@ export function MergedThisWeek({ rows, rangeLabel }: { rows: MergedCount[]; rang
       <div>
         <h2 className="text-lg font-semibold text-fg">Merged this week</h2>
         <p className="mt-0.5 text-sm text-fg-muted">
-          Frontend team PRs merged since Monday, most first &middot; {rangeLabel}
+          {teamName === 'All teams' ? 'Everyone’s' : `${teamName} team`} PRs merged since Monday, most first &middot; {rangeLabel}
         </p>
       </div>
 
@@ -28,7 +38,7 @@ export function MergedThisWeek({ rows, rangeLabel }: { rows: MergedCount[]; rang
               <li key={row.github_login} title={label} aria-label={label} className="flex flex-col gap-1.5">
                 <div className="flex items-baseline justify-between gap-3 text-sm">
                   <Link
-                    href={`/people/${row.github_login}`}
+                    href={`/people/${row.github_login}?team=${team}`}
                     className="truncate font-medium text-fg hover:text-accent"
                   >
                     {name}

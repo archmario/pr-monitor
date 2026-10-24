@@ -1,4 +1,5 @@
 import { BackLink } from '@/components/BackLink';
+import { LibraryTag } from '@/components/LibraryTag';
 import { getPrs } from '@/lib/api';
 import { StatusBadge, statusVariantFor } from '@/components/StatusBadge';
 
@@ -6,6 +7,7 @@ export default async function PrsPage({
   searchParams,
 }: {
   searchParams: Promise<{
+    team?: string;
     period?: string;
     state?: string;
     merged?: string;
@@ -17,7 +19,9 @@ export default async function PrsPage({
 }) {
   const params = await searchParams;
 
+  const team = params.team ?? 'frontend';
   const prs = await getPrs({
+    team,
     period: params.period,
     state: params.state as 'open' | 'closed' | undefined,
     merged: params.merged === undefined ? undefined : params.merged === 'true',
@@ -34,7 +38,7 @@ export default async function PrsPage({
           {prs.length} pull request{prs.length === 1 ? '' : 's'}
         </h1>
         <BackLink
-          fallbackHref={`/?${params.day ? `period=week&day=${params.day}` : `period=${params.period ?? 'all'}`}`}
+          fallbackHref={`/${team}?${params.day ? `period=week&day=${params.day}` : `period=${params.period ?? 'all'}`}`}
           label="Back to dashboard"
         />
       </div>
@@ -52,6 +56,7 @@ export default async function PrsPage({
               <span className="truncate text-sm font-medium text-fg">{pr.title}</span>
               <span className="flex flex-wrap items-center gap-1.5 text-xs text-fg-subtle">
                 {pr.repo} #{pr.number} &middot; {pr.author ?? 'unknown'}
+                {pr.is_library && <LibraryTag />}
               </span>
             </div>
             <StatusBadge variant={statusVariantFor(pr)} />

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import type { PersonSummary } from '@/lib/types';
+import { LibraryTag } from '@/components/LibraryTag';
 
 type SortKey = 'github_login' | 'total' | 'merged' | 'open' | 'closed_unmerged' | 'open_conflict';
 
@@ -129,6 +130,14 @@ export function PersonTable({ people, periodQuery }: { people: PersonSummary[]; 
                   >
                     {person.display_name ?? person.github_login}
                   </Link>
+                  {person.library > 0 && (
+                    <span className="ml-2 align-middle">
+                      <LibraryTag
+                        count={person.library}
+                        title={`${person.library} of these PRs are in shared libraries (msflib)`}
+                      />
+                    </span>
+                  )}
                   {person.open_conflict > 0 && (
                     <span className="ml-2 inline-block rounded-full bg-conflict/10 px-2 py-0.5 text-xs text-conflict">
                       {person.open_conflict} stuck
