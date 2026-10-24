@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { BackLink } from '@/components/BackLink';
 import { getPrs } from '@/lib/api';
 import { StatusBadge, statusVariantFor } from '@/components/StatusBadge';
 
@@ -33,9 +33,10 @@ export default async function PrsPage({
         <h1 className="text-2xl font-semibold tracking-tight text-fg">
           {prs.length} pull request{prs.length === 1 ? '' : 's'}
         </h1>
-        <Link href="/" className="text-sm text-accent hover:text-accent-hover">
-          &larr; Back to dashboard
-        </Link>
+        <BackLink
+          fallbackHref={`/?${params.day ? `period=week&day=${params.day}` : `period=${params.period ?? 'all'}`}`}
+          label="Back to dashboard"
+        />
       </div>
 
       <div className="flex flex-col gap-2">
@@ -49,7 +50,7 @@ export default async function PrsPage({
           >
             <div className="flex min-w-0 flex-col gap-1">
               <span className="truncate text-sm font-medium text-fg">{pr.title}</span>
-              <span className="text-xs text-fg-subtle">
+              <span className="flex flex-wrap items-center gap-1.5 text-xs text-fg-subtle">
                 {pr.repo} #{pr.number} &middot; {pr.author ?? 'unknown'}
               </span>
             </div>

@@ -104,7 +104,7 @@ export default async function DashboardPage({
 
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold text-fg">Frontend Team</h2>
-        <PersonTable people={people} />
+        <PersonTable people={people} periodQuery={query} />
       </section>
 
       <MergedThisWeek rows={mergedThisWeek} rangeLabel={weekRangeLabel()} />
