@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import type { Period } from '@/lib/types';
+import { todayWeekdayShort } from '@/lib/week';
 
 export function PeriodToggle({ current, basePath }: { current: Period; basePath: string }) {
-  const weekday = new Date().toLocaleDateString('en-US', { weekday: 'short' });
+  const weekday = todayWeekdayShort();
 
   const options: { value: Period; label: string }[] = [
     { value: 'all', label: 'All-time' },

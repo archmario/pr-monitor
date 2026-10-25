@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getPrs } from '@/lib/api';
+import { toTeamClock } from '@/lib/week';
 import { BackLink } from '@/components/BackLink';
 import { LibraryTag } from '@/components/LibraryTag';
 import { StatusBadge, statusVariantFor } from '@/components/StatusBadge';
@@ -22,7 +23,8 @@ function dayLabel(iso: string): string {
 }
 
 function openedOn(iso: string): string {
-  return new Date(`${iso.replace(/Z?$/, 'Z')}`).toLocaleDateString('en-GB', {
+  // Shown on the team's clock (Lagos), so a PR opened at 00:30 Monday reads as Monday.
+  return toTeamClock(new Date(`${iso.replace(/Z?$/, 'Z')}`)).toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',

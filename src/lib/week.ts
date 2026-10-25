@@ -1,8 +1,27 @@
-// Week helpers for the "This week" view. Everything is in UTC so the days
-// line up exactly with the backend, which starts the week at midnight UTC
-// on Monday.
+// Week helpers for the "This week" view, in the team's local time: Nigeria
+// (WAT), UTC+1 all year round. They line up with the backend, which starts
+// each day and week at midnight Lagos time (TEAM_UTC_OFFSET_HOURS).
+//
+// How: teamNow() is "now" shifted forward by the offset, so its UTC fields
+// (getUTCDate, getUTCDay...) read as Lagos wall-clock time. Every helper
+// below works on that shifted clock with UTC methods.
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const TEAM_UTC_OFFSET_MS = 1 * 60 * 60 * 1000;
+
+export function teamNow(): Date {
+  return new Date(Date.now() + TEAM_UTC_OFFSET_MS);
+}
+
+// A UTC timestamp (e.g. when a PR was opened) on the team's clock, for display.
+export function toTeamClock(utc: Date): Date {
+  return new Date(utc.getTime() + TEAM_UTC_OFFSET_MS);
+}
+
+// "Mon", for the "Today (Mon)" button.
+export function todayWeekdayShort(): string {
+  return teamNow().toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' });
+}
 
 export interface WeekDay {
   iso: string; // "2026-10-19", the value sent to the API as ?day=
@@ -20,13 +39,13 @@ function startOfTodayUtc(now: Date): Date {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 }
 
-export function startOfWeekUtc(now: Date = new Date()): Date {
+export function startOfWeekUtc(now: Date = teamNow()): Date {
   const today = startOfTodayUtc(now);
   const daysSinceMonday = (today.getUTCDay() + 6) % 7; // getUTCDay: Sun=0, Mon=1
   return new Date(today.getTime() - daysSinceMonday * DAY_MS);
 }
 
-export function daysOfThisWeek(now: Date = new Date()): WeekDay[] {
+export function daysOfThisWeek(now: Date = teamNow()): WeekDay[] {
   const monday = startOfWeekUtc(now);
   const todayIso = toIso(startOfTodayUtc(now));
 
@@ -45,7 +64,7 @@ export function daysOfThisWeek(now: Date = new Date()): WeekDay[] {
 
 // ISO 8601 week number: weeks start on Monday, and week 1 is the week that
 // contains the year's first Thursday.
-export function isoWeekNumber(now: Date = new Date()): number {
+export function isoWeekNumber(now: Date = teamNow()): number {
   const date = startOfTodayUtc(now);
   const dayNum = (date.getUTCDay() + 6) % 7; // Mon=0 ... Sun=6
   date.setUTCDate(date.getUTCDate() - dayNum + 3); // Thursday of this week
@@ -56,7 +75,7 @@ export function isoWeekNumber(now: Date = new Date()): number {
 }
 
 // "Mon 19 Oct – Sun 25 Oct 2026"
-export function weekRangeLabel(now: Date = new Date()): string {
+export function weekRangeLabel(now: Date = teamNow()): string {
   const monday = startOfWeekUtc(now);
   const sunday = new Date(monday.getTime() + 6 * DAY_MS);
   const short = { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' } as const;
@@ -66,7 +85,7 @@ export function weekRangeLabel(now: Date = new Date()): string {
 }
 
 // Only accept a ?day= that's a real day in this week, up to today.
-export function isSelectableDay(value: string | undefined, now: Date = new Date()): value is string {
+export function isSelectableDay(value: string | undefined, now: Date = teamNow()): value is string {
   if (!value) return false;
   return daysOfThisWeek(now).some((d) => d.iso === value && !d.isFuture);
 }
