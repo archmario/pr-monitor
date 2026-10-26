@@ -15,14 +15,14 @@ export function PeriodToggle({ current, basePath }: { current: Period; basePath:
   ];
 
   return (
-    <div className="inline-flex rounded-lg border border-edge bg-surface-raised p-1">
+    <div className="inline-flex max-w-full overflow-x-auto rounded-lg border border-edge bg-surface-raised p-1">
       {options.map((option) => {
         const active = option.value === current;
         return (
           <Link
             key={option.value}
             href={`${basePath}?period=${option.value}`}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+            className={`whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
               active ? 'bg-accent text-white' : 'text-fg-muted hover:text-fg'
             }`}
           >
