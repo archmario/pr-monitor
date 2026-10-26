@@ -1,4 +1,4 @@
-export type Period = 'all' | 'today' | 'week' | 'd30' | 'd90';
+export type Period = 'all' | 'today' | 'week' | 'lastweek' | 'd30' | 'd90';
 
 export interface PeriodTotals {
   period: string;

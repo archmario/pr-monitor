@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import type { WeekDay } from '@/lib/week';
 
-// Mon-Sun row shown under "This week". Clicking a day filters the dashboard
-// to that day; clicking the selected day again goes back to the whole week.
+// Mon-Sun row shown under "This week" and "Last week". Clicking a day filters
+// the dashboard to that day; clicking the selected day again goes back to the whole week.
 export function WeekDayStrip({
   days,
   counts,
@@ -10,6 +10,7 @@ export function WeekDayStrip({
   weekNumber,
   rangeLabel,
   basePath,
+  period,
 }: {
   days: WeekDay[];
   counts: Record<string, number>;
@@ -17,6 +18,7 @@ export function WeekDayStrip({
   weekNumber: number;
   rangeLabel: string;
   basePath: string;
+  period: 'week' | 'lastweek';
 }) {
   return (
     <section className="flex flex-col gap-3">
@@ -50,7 +52,7 @@ export function WeekDayStrip({
           return (
             <Link
               key={day.iso}
-              href={selected ? `${basePath}?period=week` : `${basePath}?period=week&day=${day.iso}`}
+              href={selected ? `${basePath}?period=${period}` : `${basePath}?period=${period}&day=${day.iso}`}
               className={`${base} ${
                 selected
                   ? 'border-accent bg-accent text-white'

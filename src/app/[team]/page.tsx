@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getConflicts, getLastSync, getMergedThisWeek, getPeople, getSummary, getTeams } from '@/lib/api';
+import { getConflicts, getLastSync, getMergedInWeek, getPeople, getSummary, getTeams } from '@/lib/api';
 import type { Period } from '@/lib/types';
-import { daysOfThisWeek, isoWeekNumber, isSelectableDay, weekRangeLabel } from '@/lib/week';
+import { daysOfWeek, isoWeekNumber, isSelectableDay, weekRangeLabel, weeksBack } from '@/lib/week';
 import { PeriodToggle } from '@/components/PeriodToggle';
 import { HeadlineCard } from '@/components/HeadlineCard';
 import { LibraryTag } from '@/components/LibraryTag';
@@ -14,7 +14,7 @@ import { TeamIcon } from '@/components/TeamIcon';
 import { TeamSwitcher } from '@/components/TeamSwitcher';
 import { WeekDayStrip } from '@/components/WeekDayStrip';
 
-const PERIODS: Period[] = ['all', 'today', 'week', 'd30', 'd90'];
+const PERIODS: Period[] = ['all', 'today', 'week', 'lastweek', 'd30', 'd90'];
 
 function isPeriod(value: string | undefined): value is Period {
   return PERIODS.includes(value as Period);
@@ -42,10 +42,15 @@ export default async function TeamDashboardPage({
   const libraries = team ? team.libraries : teams.flatMap((t) => (t.set_up ? t.libraries : []));
 
   const period: Period = isPeriod(periodParam) ? periodParam : 'all';
-  // A single day can only be picked from inside "This week".
-  const isWeek = period === 'week';
-  const day = isWeek && isSelectableDay(dayParam) ? dayParam : null;
-  const weekDays = isWeek ? daysOfThisWeek() : [];
+  // "This week" and "Last week" get a Mon-Sun strip; a single day can only be
+  // picked from inside one of them.
+  const lastWeek = period === 'lastweek';
+  const weeksAgo = lastWeek ? 1 : 0;
+  const showWeekStrip = period === 'week' || lastWeek;
+  const day = showWeekStrip && isSelectableDay(dayParam, weeksAgo) ? dayParam : null;
+  const weekDays = showWeekStrip ? daysOfWeek(weeksAgo) : [];
+  // The ranking shows last week under "Last week", and this week otherwise.
+  const rankingWeek = weeksBack(weeksAgo);
 
   // Carried into every link so switching team or drilling down keeps the same slice.
   const query = day ? `period=${period}&day=${day}` : `period=${period}`;
@@ -84,12 +89,12 @@ export default async function TeamDashboardPage({
     getPeople(slug, period, day),
     getConflicts(slug),
     getLastSync(),
-    getMergedThisWeek(slug),
+    getMergedInWeek(slug, lastWeek ? 'lastweek' : 'week'),
     // One small summary call per day so far this week, for the counts in the strip.
     Promise.all(
       weekDays
         .filter((d) => !d.isFuture)
-        .map(async (d) => [d.iso, (await getSummary(slug, 'week', d.iso)).total] as const),
+        .map(async (d) => [d.iso, (await getSummary(slug, period, d.iso)).total] as const),
     ),
   ]);
 
@@ -124,14 +129,15 @@ export default async function TeamDashboardPage({
         </div>
       </header>
 
-      {isWeek && (
+      {showWeekStrip && (
         <WeekDayStrip
           days={weekDays}
           counts={Object.fromEntries(dayCounts)}
           selectedDay={day}
-          weekNumber={isoWeekNumber()}
-          rangeLabel={weekRangeLabel()}
+          weekNumber={isoWeekNumber(rankingWeek)}
+          rangeLabel={weekRangeLabel(rankingWeek)}
           basePath={basePath}
+          period={lastWeek ? 'lastweek' : 'week'}
         />
       )}
 
@@ -169,7 +175,13 @@ export default async function TeamDashboardPage({
         <PersonTable people={people} periodQuery={prsQuery} />
       </section>
 
-      <MergedThisWeek rows={mergedThisWeek} rangeLabel={weekRangeLabel()} teamName={teamName} team={slug} />
+      <MergedThisWeek
+        rows={mergedThisWeek}
+        rangeLabel={weekRangeLabel(rankingWeek)}
+        teamName={teamName}
+        team={slug}
+        lastWeek={lastWeek}
+      />
 
       <NeedsAttentionSection conflicts={conflicts} />
     </main>

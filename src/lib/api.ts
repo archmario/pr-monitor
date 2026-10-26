@@ -46,9 +46,10 @@ export function getConflicts(team: string): Promise<ConflictEntry[]> {
   return getJson(`/conflicts?team=${team}`);
 }
 
-// Team members ranked by PRs merged this week (by merge date, from Monday).
-export function getMergedThisWeek(team: string): Promise<MergedCount[]> {
-  return getJson(`/merged?team=${team}&period=week`);
+// Team members ranked by PRs merged in a week (by merge date): this week from
+// Monday, or all of last week.
+export function getMergedInWeek(team: string, period: 'week' | 'lastweek'): Promise<MergedCount[]> {
+  return getJson(`/merged?team=${team}&period=${period}`);
 }
 
 export interface PrFilters {

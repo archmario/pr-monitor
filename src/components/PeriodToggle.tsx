@@ -9,6 +9,7 @@ export function PeriodToggle({ current, basePath }: { current: Period; basePath:
     { value: 'all', label: 'All-time' },
     { value: 'today', label: `Today (${weekday})` },
     { value: 'week', label: 'This week' },
+    { value: 'lastweek', label: 'Last week' },
     { value: 'd30', label: 'Last 30 days' },
     { value: 'd90', label: 'Last 90 days' },
   ];

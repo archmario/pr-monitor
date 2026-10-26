@@ -9,6 +9,7 @@ const PERIOD_LABELS: Record<string, string> = {
   all: 'All time',
   today: 'Today',
   week: 'This week',
+  lastweek: 'Last week',
   d30: 'Last 30 days',
   d90: 'Last 90 days',
 };
@@ -80,7 +81,7 @@ export default async function PersonPage({
     .join(' · ');
   const isFiltered = period !== 'all' || Boolean(filters.day) || statusLabel !== null;
 
-  const dashboardQuery = filters.day ? `period=week&day=${filters.day}` : `period=${period}`;
+  const dashboardQuery = filters.day ? `period=${period}&day=${filters.day}` : `period=${period}`;
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-10">

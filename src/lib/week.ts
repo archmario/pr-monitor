@@ -45,8 +45,16 @@ export function startOfWeekUtc(now: Date = teamNow()): Date {
   return new Date(today.getTime() - daysSinceMonday * DAY_MS);
 }
 
-export function daysOfThisWeek(now: Date = teamNow()): WeekDay[] {
-  const monday = startOfWeekUtc(now);
+// The moment `weeks` weeks before now, on the team's clock (1 = same time last week).
+export function weeksBack(weeks: number): Date {
+  return new Date(teamNow().getTime() - weeks * 7 * DAY_MS);
+}
+
+// Mon-Sun of this week (weeksAgo = 0) or an earlier one (1 = last week).
+// "today" and "future" are always judged against the real today.
+export function daysOfWeek(weeksAgo = 0): WeekDay[] {
+  const now = teamNow();
+  const monday = startOfWeekUtc(weeksBack(weeksAgo));
   const todayIso = toIso(startOfTodayUtc(now));
 
   return Array.from({ length: 7 }, (_, i) => {
@@ -84,8 +92,12 @@ export function weekRangeLabel(now: Date = teamNow()): string {
   return `${first} – ${last} ${sunday.getUTCFullYear()}`;
 }
 
-// Only accept a ?day= that's a real day in this week, up to today.
-export function isSelectableDay(value: string | undefined, now: Date = teamNow()): value is string {
+export function daysOfThisWeek(): WeekDay[] {
+  return daysOfWeek(0);
+}
+
+// Only accept a ?day= that's a real day in that week, up to today.
+export function isSelectableDay(value: string | undefined, weeksAgo = 0): value is string {
   if (!value) return false;
-  return daysOfThisWeek(now).some((d) => d.iso === value && !d.isFuture);
+  return daysOfWeek(weeksAgo).some((d) => d.iso === value && !d.isFuture);
 }

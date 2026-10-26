@@ -38,7 +38,7 @@ export default async function PrsPage({
           {prs.length} pull request{prs.length === 1 ? '' : 's'}
         </h1>
         <BackLink
-          fallbackHref={`/${team}?${params.day ? `period=week&day=${params.day}` : `period=${params.period ?? 'all'}`}`}
+          fallbackHref={`/${team}?${params.day ? `period=${params.period ?? 'week'}&day=${params.day}` : `period=${params.period ?? 'all'}`}`}
           label="Back to dashboard"
         />
       </div>
